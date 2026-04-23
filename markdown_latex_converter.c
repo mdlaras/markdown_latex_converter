@@ -23,6 +23,14 @@ void convertBold(FILE * fileOut, char * boldStart){
     printf("detected bold");
     fprintf(fileOut, "\\textbf{%s}", boldStart + 2); 
 }
+
+void convertItalic(FILE * fileOut, char * italicStart){
+    int italicEnd = strcspn(italicStart+1, "*");
+    italicStart[italicEnd+1] = '\0';
+    printf("detected bold");
+    fprintf(fileOut, "\\textbf{%s}", italicStart + 1); 
+}
+
 void closeLatex(FILE * File){
     fprintf(File, "\n\\end{document}\n");
 }
@@ -58,6 +66,9 @@ int main(){
             if (pBold != NULL){
                 convertBold(pFileOutput, pBold);
             } 
+            if (pItalic != NULL){
+                convertItalic(pFileOutput, pItalic);
+            }
             fprintf(pFileOutput, "%s", buffer);
         }
     }
