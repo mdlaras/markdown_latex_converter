@@ -17,18 +17,44 @@ void initiateLatex(FILE * fileOut, FILE * fileIn, char * buffer){
     fprintf(fileOut, "\\maketitle\n");
 }
 
-void convertBold(FILE * fileOut, char * boldStart){
-    int pBoldEnd = strcspn(boldStart+2, "**");
-    boldStart[pBoldEnd+2] = '\0';
-    printf("detected bold");
-    fprintf(fileOut, "\\textbf{%s}", boldStart + 2); 
+void convertBold(FILE * fileOut, char * boldStart, char * Current){
+        char *pBoldEnd = strstr(boldStart+2, "**");
+        int boldLength = pBoldEnd - boldStart -2;
+        int boldDistance = boldStart - Current;
+        char *trimmedBefore = (char *)malloc(boldDistance+1);
+        strncpy(trimmedBefore, Current, boldDistance+1);
+        trimmedBefore[boldDistance] = '\0';
+        fprintf(fileOut, "%s", trimmedBefore);
+        free(trimmedBefore);
+        printf("detected bold");
+        char *trimmedBold = (char *)malloc(boldLength + 1);
+        strncpy(trimmedBold, boldStart+2, boldLength+1);
+        trimmedBold[boldLength] = '\0';
+        fprintf(fileOut, "\\textbf{%s}", trimmedBold);
+        free(trimmedBold);
+        fprintf(fileOut, "%s", pBoldEnd+2);
 }
 
-void convertItalic(FILE * fileOut, char * italicStart){
-    int italicEnd = strcspn(italicStart+1, "*");
-    italicStart[italicEnd+1] = '\0';
+void convertItalic(FILE * fileOut, char * italicStart, char * Current){
+    char *pBoldEnd = strstr(italicStart+1, "*");
+    int boldLength = pBoldEnd - italicStart -1;
+    int boldDistance = italicStart - Current;
+    char *trimmedBefore = (char *)malloc(boldDistance+1);
+    strncpy(trimmedBefore, Current, boldDistance+1);
+    trimmedBefore[boldDistance] = '\0';
+    fprintf(fileOut, "%s", trimmedBefore);
+    free(trimmedBefore);
     printf("detected bold");
-    fprintf(fileOut, "\\textbf{%s}", italicStart + 1); 
+    char *trimmedBold = (char *)malloc(boldLength + 1);
+    strncpy(trimmedBold, italicStart+1, boldLength+1);
+    trimmedBold[boldLength] = '\0';
+    fprintf(fileOut, "\\textbf{%s}", trimmedBold);
+    free(trimmedBold);
+    fprintf(fileOut, "%s", pBoldEnd+1);
+    // int italicEnd = strcspn(italicStart+1, "*");
+    // italicStart[italicEnd+1] = '\0';
+    // printf("detected bold");
+    // fprintf(fileOut, "\\textbf{%s}", italicStart + 1); 
 }
 
 void closeLatex(FILE * File){
@@ -64,12 +90,11 @@ int main(){
             fprintf(pFileOutput, "\\section{%s}\n", pHeaderOne+1);
         } else {
             if (pBold != NULL){
-                convertBold(pFileOutput, pBold);
+                convertBold(pFileOutput, pBold, pCurrent);
             } 
             if (pItalic != NULL){
-                convertItalic(pFileOutput, pItalic);
+                convertItalic(pFileOutput, pItalic, pCurrent);
             }
-            fprintf(pFileOutput, "%s", buffer);
         }
     }
     closeLatex(pFileOutput);
