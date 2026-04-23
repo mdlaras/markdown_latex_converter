@@ -17,6 +17,12 @@ void initiateLatex(FILE * fileOut, FILE * fileIn, char * buffer){
     fprintf(fileOut, "\\maketitle\n");
 }
 
+void convertBold(FILE * fileOut, char * boldStart){
+    int pBoldEnd = strcspn(boldStart+2, "**");
+    boldStart[pBoldEnd+2] = '\0';
+    printf("detected bold");
+    fprintf(fileOut, "\\textbf{%s}", boldStart + 2); 
+}
 void closeLatex(FILE * File){
     fprintf(File, "\n\\end{document}\n");
 }
@@ -31,11 +37,13 @@ int main(){
     pFileOutput = fopen("test.tex", "w");
 
     initiateLatex(pFileOutput, pFileInput, buffer);
+
     while(fgets(buffer, 1024, pFileInput) != NULL){
         char *pHeaderOne = strstr(buffer, "#");
         char *pHeaderTwo = strstr(buffer, "##");
         char *pItalic = strstr(buffer, "*");
         char *pBold = strstr(buffer, "**");
+        char *pCurrent = buffer;
         int lineEnd = strcspn(buffer, "\n");
         if(lineEnd < 1024){
             buffer[lineEnd] = '\0';
@@ -47,12 +55,14 @@ int main(){
         else if (pHeaderOne != NULL){
             fprintf(pFileOutput, "\\section{%s}\n", pHeaderOne+1);
         } else {
+            if (pBold != NULL){
+                convertBold(pFileOutput, pBold);
+            } 
             fprintf(pFileOutput, "%s", buffer);
         }
-        
     }
-
     closeLatex(pFileOutput);
+
     fclose(pFileInput);
     fclose(pFileOutput);
     return 0;
