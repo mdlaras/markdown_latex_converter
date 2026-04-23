@@ -18,7 +18,7 @@ void initiateLatex(FILE * fileOut, FILE * fileIn, char * buffer){
 }
 
 void closeLatex(FILE * File){
-    fprintf(File, "\\end{document}\n");
+    fprintf(File, "\n\\end{document}\n");
 }
 
 int main(){
