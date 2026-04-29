@@ -1,0 +1,42 @@
+textConverter
+    input: string
+    output: string
+
+    variables
+        char* pMarkerStart => start of marker
+        char* pMarkerEnd => start of marker end - first * if we find "***"
+        int markerCount = the number of marker symbols - 1 for *, 2 for ** etc
+        char* outString = output string
+        char* convertString = string to be converted
+        char* restString = string after the marker
+
+    1. identify next marker
+        save marker position
+        outString = string up to point before marker
+
+    2. analyse marker
+        if * != NULL
+            count how many *
+            find the end of marker 
+            convertString = string(pMarkerStart to pMarkerEnd)
+            if count = 1
+                italic(convertString)
+            else if count = 2
+                bold(convertString)
+            else if count > 2
+                continue
+        else if # != NULL
+            count how many #
+            find the end of marker 
+            if count = 1
+                section(convertString)
+            else if count = 2
+                subsection(convertString)
+            else if count = 3
+                paragraph(convertString)
+            else 
+                bold(convertString)
+        else
+            continue
+    3. outString = outString + convertString
+    4. return outString + textConverter(restString)
