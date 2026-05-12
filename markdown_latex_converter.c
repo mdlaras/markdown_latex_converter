@@ -35,11 +35,6 @@ void convertBold(FILE * fileOut, char * buffer){
             trimmedBold[boldLength] = '\0';
             fprintf(fileOut, "\\textbf{%s}", trimmedBold);
             free(trimmedBold);
-            convertBold(fileOut, pBoldEnd +2);
-        }
-        else{
-            printf("no bold detected ");
-            fprintf(fileOut, "%s", pCurrent);
         }
 }
 
@@ -61,12 +56,36 @@ void convertItalic(FILE * fileOut, char * buffer){
         trimmedItalic[italicLength] = '\0';
         fprintf(fileOut, "\\textit{%s}", trimmedItalic);
         free(trimmedItalic);
-        convertItalic(fileOut, pItalicEnd +1);
     }
-    else{
-        printf("no italic detected ");
+}
+
+void convertStyle(FILE *fileOut, char * buffer){
+    char *pItalicStart = strstr(buffer, "*");
+    char *pBoldStart = strstr(buffer, "**");
+    char *pCurrent = buffer;
+    if (pBoldStart != NULL){
+        if (pItalicStart != NULL && pBoldStart < pItalicStart){
+        char *pBoldEnd = strstr(pBoldStart+2, "**");
+        convertBold(fileOut, pCurrent);
+        convertStyle(fileOut, pBoldEnd + 2);
+        } else if (pItalicStart != NULL && pBoldStart > pItalicStart){
+            char *pItalicEnd = strstr(pItalicStart+1, "*");
+            convertItalic(fileOut, pCurrent);
+            convertStyle(fileOut, pItalicEnd +1);
+        } else {
+            char *pBoldEnd = strstr(pBoldStart+2, "**");
+            convertBold(fileOut, pCurrent);
+            convertStyle(fileOut, pBoldEnd + 2);
+        }
+    } else if (pItalicStart != NULL){
+        char *pItalicEnd = strstr(pItalicStart+1, "*");
+        convertItalic(fileOut, pCurrent);
+        convertStyle(fileOut, pItalicEnd +1);
+    } else {
+        printf("no style detected ");
         fprintf(fileOut, "%s", pCurrent);
     }
+    
 }
 
 void closeLatex(FILE * File){
@@ -101,10 +120,7 @@ int main(){
         else if (pHeaderOne != NULL){
             fprintf(pFileOutput, "\\section{%s}\n", pHeaderOne+1);
         } else {
-            convertBold(pFileOutput, buffer);
-            if (pItalic != NULL){
-                convertItalic(pFileOutput, buffer);
-            }
+            convertStyle(pFileOutput, buffer);
         }
     }
     closeLatex(pFileOutput);
