@@ -98,17 +98,22 @@ int main(){
     char * identifier[2] = {"#", "*"};
     char buffer[1024];
 
-    pFileInput = fopen("test.md", "r");
-    pFileOutput = fopen("test.tex", "w");
+    printf("Enter the markdown file to convert\n");
+    char fileName[256];
+    scanf("%s", fileName);
+    printf("Enter output name\n");
+    char outName[256];
+    scanf("%s", outName);
+    strcat(outName, ".tex");
+
+    pFileInput = fopen(fileName, "r");
+    pFileOutput = fopen(outName, "w");
 
     initiateLatex(pFileOutput, pFileInput, buffer);
 
     while(fgets(buffer, 1024, pFileInput) != NULL){
         char *pHeaderOne = strstr(buffer, "#");
         char *pHeaderTwo = strstr(buffer, "##");
-        char *pItalic = strstr(buffer, "*");
-        // char *pBold = strstr(buffer, "**");
-        // char *pCurrent = buffer;
         int lineEnd = strcspn(buffer, "\n");
         if(lineEnd < 1024){
             buffer[lineEnd] = '\0';
