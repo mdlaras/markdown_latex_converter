@@ -17,44 +17,56 @@ void initiateLatex(FILE * fileOut, FILE * fileIn, char * buffer){
     fprintf(fileOut, "\\maketitle\n");
 }
 
-void convertBold(FILE * fileOut, char * boldStart, char * Current){
-        char *pBoldEnd = strstr(boldStart+2, "**");
-        int boldLength = pBoldEnd - boldStart -2;
-        int boldDistance = boldStart - Current;
-        char *trimmedBefore = (char *)malloc(boldDistance+1);
-        strncpy(trimmedBefore, Current, boldDistance+1);
-        trimmedBefore[boldDistance] = '\0';
-        fprintf(fileOut, "%s", trimmedBefore);
-        free(trimmedBefore);
-        printf("detected bold");
-        char *trimmedBold = (char *)malloc(boldLength + 1);
-        strncpy(trimmedBold, boldStart+2, boldLength+1);
-        trimmedBold[boldLength] = '\0';
-        fprintf(fileOut, "\\textbf{%s}", trimmedBold);
-        free(trimmedBold);
-        fprintf(fileOut, "%s", pBoldEnd+2);
+void convertBold(FILE * fileOut, char * buffer){
+        char *pBoldStart = strstr(buffer, "**");
+        char *pCurrent = buffer;
+        if(pBoldStart != NULL){
+            char *pBoldEnd = strstr(pBoldStart+2, "**");
+            int boldLength = pBoldEnd - pBoldStart -2;
+            int boldDistance = pBoldStart - pCurrent;
+            char *trimmedBefore = (char *)malloc(boldDistance+1);
+            strncpy(trimmedBefore, pCurrent, boldDistance);
+            trimmedBefore[boldDistance] = '\0';
+            fprintf(fileOut, "%s", trimmedBefore);
+            free(trimmedBefore);
+            printf("detected bold ");
+            char *trimmedBold = (char *)malloc(boldLength + 1);
+            strncpy(trimmedBold, pBoldStart+2, boldLength);
+            trimmedBold[boldLength] = '\0';
+            fprintf(fileOut, "\\textbf{%s}", trimmedBold);
+            free(trimmedBold);
+            convertBold(fileOut, pBoldEnd +2);
+        }
+        else{
+            printf("no bold detected ");
+            fprintf(fileOut, "%s", pCurrent);
+        }
 }
 
-void convertItalic(FILE * fileOut, char * italicStart, char * Current){
-    char *pBoldEnd = strstr(italicStart+1, "*");
-    int boldLength = pBoldEnd - italicStart -1;
-    int boldDistance = italicStart - Current;
-    char *trimmedBefore = (char *)malloc(boldDistance+1);
-    strncpy(trimmedBefore, Current, boldDistance+1);
-    trimmedBefore[boldDistance] = '\0';
-    fprintf(fileOut, "%s", trimmedBefore);
-    free(trimmedBefore);
-    printf("detected bold");
-    char *trimmedBold = (char *)malloc(boldLength + 1);
-    strncpy(trimmedBold, italicStart+1, boldLength+1);
-    trimmedBold[boldLength] = '\0';
-    fprintf(fileOut, "\\textbf{%s}", trimmedBold);
-    free(trimmedBold);
-    fprintf(fileOut, "%s", pBoldEnd+1);
-    // int italicEnd = strcspn(italicStart+1, "*");
-    // italicStart[italicEnd+1] = '\0';
-    // printf("detected bold");
-    // fprintf(fileOut, "\\textbf{%s}", italicStart + 1); 
+void convertItalic(FILE * fileOut, char * buffer){
+    char *pItalicStart = strstr(buffer, "*");
+    char *pCurrent = buffer;
+    if(pItalicStart != NULL){
+        char *pItalicEnd = strstr(pItalicStart+1, "*");
+        int italicLength = pItalicEnd - pItalicStart - 1;
+        int italicDistance = pItalicStart - pCurrent;
+        char *trimmedBefore = (char *)malloc(italicDistance + 1);
+        strncpy(trimmedBefore, pCurrent, italicDistance);
+        trimmedBefore[italicDistance] = '\0';
+        fprintf(fileOut, "%s", trimmedBefore);
+        free(trimmedBefore);
+        printf("detected italic ");
+        char *trimmedItalic = (char *)malloc(italicLength + 1);
+        strncpy(trimmedItalic, pItalicStart+1, italicLength);
+        trimmedItalic[italicLength] = '\0';
+        fprintf(fileOut, "\\textit{%s}", trimmedItalic);
+        free(trimmedItalic);
+        convertItalic(fileOut, pItalicEnd +1);
+    }
+    else{
+        printf("no italic detected ");
+        fprintf(fileOut, "%s", pCurrent);
+    }
 }
 
 void closeLatex(FILE * File){
@@ -76,8 +88,8 @@ int main(){
         char *pHeaderOne = strstr(buffer, "#");
         char *pHeaderTwo = strstr(buffer, "##");
         char *pItalic = strstr(buffer, "*");
-        char *pBold = strstr(buffer, "**");
-        char *pCurrent = buffer;
+        // char *pBold = strstr(buffer, "**");
+        // char *pCurrent = buffer;
         int lineEnd = strcspn(buffer, "\n");
         if(lineEnd < 1024){
             buffer[lineEnd] = '\0';
@@ -89,11 +101,9 @@ int main(){
         else if (pHeaderOne != NULL){
             fprintf(pFileOutput, "\\section{%s}\n", pHeaderOne+1);
         } else {
-            if (pBold != NULL){
-                convertBold(pFileOutput, pBold, pCurrent);
-            } 
+            convertBold(pFileOutput, buffer);
             if (pItalic != NULL){
-                convertItalic(pFileOutput, pItalic, pCurrent);
+                convertItalic(pFileOutput, buffer);
             }
         }
     }
