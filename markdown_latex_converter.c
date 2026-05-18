@@ -92,22 +92,12 @@ void closeLatex(FILE * File){
     fprintf(File, "\n\\end{document}\n");
 }
 
-int main(){
-    FILE * pFileInput;
-    FILE * pFileOutput;
-    char * identifier[2] = {"#", "*"};
+void generateLatex(char * inName, char * outName){
+
+    FILE * pFileInput = fopen(inName, "r");
+    FILE * pFileOutput = fopen(outName, "w");
+
     char buffer[1024];
-
-    printf("Enter the markdown file to convert\n");
-    char fileName[256];
-    scanf("%s", fileName);
-    printf("Enter output name\n");
-    char outName[256];
-    scanf("%s", outName);
-    strcat(outName, ".tex");
-
-    pFileInput = fopen(fileName, "r");
-    pFileOutput = fopen(outName, "w");
 
     initiateLatex(pFileOutput, pFileInput, buffer);
 
@@ -128,9 +118,25 @@ int main(){
             convertStyle(pFileOutput, buffer);
         }
     }
+
     closeLatex(pFileOutput);
 
     fclose(pFileInput);
     fclose(pFileOutput);
+}
+
+int main(){
+    char * identifier[2] = {"#", "*"};
+    
+    printf("Enter the markdown file to convert\n");
+    char fileName[256];
+    scanf("%s", fileName);
+    printf("Enter output name\n");
+    char outName[256];
+    scanf("%s", outName);
+    strcat(outName, ".tex");
+
+    generateLatex(fileName, outName);
+ 
     return 0;
 }
